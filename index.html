@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suivi d'écriture</title>
+
+<style>
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Georgia', serif;
+    padding: 20px;
+
+    background-image: url("fond.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Overlay sombre */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 0;
+}
+
+.container {
+    position: relative;
+    z-index: 1;
+    background: rgba(40, 40, 40, 0.92);
+    padding: 40px;
+    border-radius: 15px;
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+    color: #e0e0e0;
+}
+
+/* Titre principal */
+h1 {
+    margin-bottom: 5px;
+    color: #6B0F1A;
+    letter-spacing: 1px;
+
+    /* Ombre blanche plus transparente */
+    /*text-shadow: 0 0 2px rgb(255, 255, 255);*/
+}
+
+/* Titre du livre */
+.book-title {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: #ccc;
+    font-style: italic;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 25px;
+    background: #555;
+    border-radius: 50px;
+    overflow: hidden;
+    margin: 25px 0;
+}
+
+.progress {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #6B0F1A, #9E1B32);
+    transition: width 0.6s ease;
+}
+
+.percentage {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #ffffff;
+}
+
+.input-group {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+input {
+    width: 80px;
+    padding: 8px;
+    font-size: 16px;
+    text-align: center;
+    border-radius: 6px;
+    border: 1px solid #777;
+    background: #2c2c2c;
+    color: white;
+}
+
+button {
+    padding: 8px 18px;
+    font-size: 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #6B0F1A;
+    color: white;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #8e0e1f;
+    transform: scale(1.05);
+}
+
+.chapters {
+    margin-top: 15px;
+    font-size: 15px;
+    color: #ccc;
+}
+
+/* Responsive téléphone */
+@media (max-width: 480px) {
+    .container {
+        padding: 25px;
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+
+    .percentage {
+        font-size: 20px;
+    }
+
+    input {
+        width: 70px;
+    }
+
+    button {
+        font-size: 14px;
+        padding: 7px 14px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>Suivi d'écriture</h1>
+    <div class="book-title">"Les Derniers Druides"</div>
+
+    <p>Objectif : 53 chapitres</p>
+
+    <div class="progress-bar">
+        <div class="progress" id="progress"></div>
+    </div>
+
+    <div class="percentage" id="percentage">0%</div>
+
+    <div class="input-group">
+        <input type="number" id="chaptersInput" min="0" max="53" value="0">
+        <button onclick="updateProgress()">Mettre à jour</button>
+    </div>
+
+    <div class="chapters" id="chaptersText">
+        0 / 53 chapitres écrits
+    </div>
+</div>
+
+<script>
+const totalChapters = 53;
+
+function updateProgress() {
+    let written = parseInt(document.getElementById("chaptersInput").value);
+
+    if (written < 0) written = 0;
+    if (written > totalChapters) written = totalChapters;
+
+    const percentage = Math.round((written / totalChapters) * 100);
+
+    document.getElementById("progress").style.width = percentage + "%";
+    document.getElementById("percentage").innerText = percentage + "%";
+    document.getElementById("chaptersText").innerText =
+        written + " / " + totalChapters + " chapitres écrits";
+}
+</script>
+
+</body>
+</html>
