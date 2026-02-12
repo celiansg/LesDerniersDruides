@@ -3,18 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Suivi d'écriture</title>
+<title>Les Derniers Druides</title>
 
 <style>
 body {
     margin: 0;
+    font-family: Georgia, serif;
     min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: 'Georgia', serif;
-    padding: 20px;
-
     background-image: url("fond.jpg");
     background-size: cover;
     background-position: center;
@@ -26,125 +21,163 @@ body::before {
     content: "";
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0,0,0,0.6);
     z-index: 0;
 }
 
-.container {
+/* MENU */
+.menu {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2;
+}
+
+.menu button {
+    background: #6B0F1A;
+    border: none;
+    padding: 8px 15px;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+.menu button:hover {
+    background: #8e0e1f;
+}
+
+/* PAGES */
+.page {
+    display: none;
     position: relative;
     z-index: 1;
-    background: rgba(40, 40, 40, 0.92);
-    padding: 40px;
+    padding: 100px 20px 40px;
+    min-height: 100vh;
+}
+
+.active {
+    display: block;
+}
+
+/* CONTAINER */
+.container {
+    max-width: 500px;
+    margin: auto;
+    background: rgba(40,40,40,0.92);
+    padding: 30px;
     border-radius: 15px;
-    width: 100%;
-    max-width: 420px;
     text-align: center;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.6);
     color: #e0e0e0;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.6);
 }
 
-/* Titre principal */
+/* TITRES */
 h1 {
-    margin-bottom: 5px;
     color: #6B0F1A;
-    letter-spacing: 1px;
-
-    /* Ombre blanche plus transparente */
-    /*text-shadow: 0 0 2px rgb(255, 255, 255);*/
+    text-shadow: 0 0 6px rgba(255,255,255,0.2);
 }
 
-/* Titre du livre */
 .book-title {
-    font-size: 18px;
-    margin-bottom: 20px;
-    color: #ccc;
     font-style: italic;
+    color: #ccc;
+    margin-bottom: 20px;
 }
 
+/* PROGRESSION */
 .progress-bar {
     width: 100%;
     height: 25px;
     background: #555;
     border-radius: 50px;
     overflow: hidden;
-    margin: 25px 0;
+    margin: 20px 0;
 }
 
 .progress {
     height: 100%;
     width: 0%;
     background: linear-gradient(90deg, #6B0F1A, #9E1B32);
-    transition: width 0.6s ease;
-}
-
-.percentage {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    color: #ffffff;
-}
-
-.input-group {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
+    transition: 0.6s;
 }
 
 input {
     width: 80px;
     padding: 8px;
-    font-size: 16px;
-    text-align: center;
     border-radius: 6px;
-    border: 1px solid #777;
-    background: #2c2c2c;
-    color: white;
+    border: none;
+    text-align: center;
+    margin: 5px;
 }
 
 button {
-    padding: 8px 18px;
-    font-size: 15px;
+    padding: 8px 15px;
+    border-radius: 6px;
     border: none;
-    border-radius: 8px;
     cursor: pointer;
-    background: #6B0F1A;
+}
+
+/* UNIVERS */
+.feed {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.image-card {
+    position: relative;
+}
+
+.feed img {
+    width: 100%;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.delete-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(0,0,0,0.7);
+    border: none;
     color: white;
-    transition: 0.3s;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
 }
 
-button:hover {
-    background: #8e0e1f;
-    transform: scale(1.05);
+/* LIGHTBOX */
+#lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
 }
 
-.chapters {
-    margin-top: 15px;
-    font-size: 15px;
-    color: #ccc;
+#lightbox img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 10px;
 }
 
-/* Responsive téléphone */
+#closeLightbox {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    font-size: 40px;
+    color: white;
+    cursor: pointer;
+}
+
+/* RESPONSIVE */
 @media (max-width: 480px) {
     .container {
-        padding: 25px;
-    }
-
-    h1 {
-        font-size: 22px;
-    }
-
-    .percentage {
-        font-size: 20px;
-    }
-
-    input {
-        width: 70px;
-    }
-
-    button {
-        font-size: 14px;
-        padding: 7px 14px;
+        padding: 20px;
     }
 }
 </style>
@@ -152,34 +185,61 @@ button:hover {
 
 <body>
 
-<div class="container">
-    <h1>Suivi d'écriture</h1>
-    <div class="book-title">"Les Derniers Druides"</div>
+<div class="menu">
+    <button onclick="showPage('home')">Accueil</button>
+    <button onclick="showPage('univers')">Univers</button>
+</div>
 
-    <p>Objectif : 53 chapitres</p>
+<!-- PAGE ACCUEIL -->
+<div id="home" class="page active">
+    <div class="container">
+        <h1>Suivi d'écriture</h1>
+        <div class="book-title">"Les Derniers Druides"</div>
 
-    <div class="progress-bar">
-        <div class="progress" id="progress"></div>
-    </div>
+        <p>Objectif : 53 chapitres</p>
 
-    <div class="percentage" id="percentage">0%</div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
 
-    <div class="input-group">
+        <div id="percentage">0%</div>
+
         <input type="number" id="chaptersInput" min="0" max="53" value="0">
-        <button onclick="updateProgress()">Mettre à jour</button>
-    </div>
+        <button style="background:#6B0F1A;color:white;" onclick="updateProgress()">Mettre à jour</button>
 
-    <div class="chapters" id="chaptersText">
-        0 / 53 chapitres écrits
+        <div id="chaptersText">0 / 53 chapitres écrits</div>
     </div>
+</div>
+
+<!-- PAGE UNIVERS -->
+<div id="univers" class="page">
+    <div class="container">
+        <h1>Univers</h1>
+        <input type="file" id="imageUpload" accept="image/*">
+        <div class="feed" id="feed"></div>
+    </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div id="lightbox">
+    <span id="closeLightbox">&times;</span>
+    <img id="lightboxImg">
 </div>
 
 <script>
 const totalChapters = 53;
 
+/* Navigation */
+function showPage(pageId) {
+    document.querySelectorAll(".page").forEach(page => {
+        page.classList.remove("active");
+    });
+    document.getElementById(pageId).classList.add("active");
+}
+
+/* Progression */
 function updateProgress() {
     let written = parseInt(document.getElementById("chaptersInput").value);
-
     if (written < 0) written = 0;
     if (written > totalChapters) written = totalChapters;
 
@@ -189,7 +249,78 @@ function updateProgress() {
     document.getElementById("percentage").innerText = percentage + "%";
     document.getElementById("chaptersText").innerText =
         written + " / " + totalChapters + " chapitres écrits";
+
+    localStorage.setItem("chaptersWritten", written);
 }
+
+/* Charger progression */
+window.onload = function() {
+    let saved = localStorage.getItem("chaptersWritten");
+    if (saved) {
+        document.getElementById("chaptersInput").value = saved;
+        updateProgress();
+    }
+    loadImages();
+};
+
+/* Upload images */
+document.getElementById("imageUpload").addEventListener("change", function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        let images = JSON.parse(localStorage.getItem("universImages")) || [];
+        images.push(e.target.result);
+        localStorage.setItem("universImages", JSON.stringify(images));
+        loadImages();
+    };
+    reader.readAsDataURL(file);
+});
+
+/* Charger images */
+function loadImages() {
+    const feed = document.getElementById("feed");
+    feed.innerHTML = "";
+    let images = JSON.parse(localStorage.getItem("universImages")) || [];
+
+    images.forEach((src, index) => {
+        const card = document.createElement("div");
+        card.classList.add("image-card");
+
+        const img = document.createElement("img");
+        img.src = src;
+        img.onclick = function() {
+            document.getElementById("lightbox").style.display = "flex";
+            document.getElementById("lightboxImg").src = src;
+        };
+
+        const delBtn = document.createElement("button");
+        delBtn.innerText = "×";
+        delBtn.classList.add("delete-btn");
+        delBtn.onclick = function(e) {
+            e.stopPropagation();
+            images.splice(index, 1);
+            localStorage.setItem("universImages", JSON.stringify(images));
+            loadImages();
+        };
+
+        card.appendChild(img);
+        card.appendChild(delBtn);
+        feed.appendChild(card);
+    });
+}
+
+/* Fermer lightbox */
+document.getElementById("closeLightbox").onclick = function() {
+    document.getElementById("lightbox").style.display = "none";
+};
+
+document.getElementById("lightbox").onclick = function(e) {
+    if (e.target === this) {
+        this.style.display = "none";
+    }
+};
 </script>
 
 </body>
