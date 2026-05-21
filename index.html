@@ -1,327 +1,606 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Les Derniers Druides</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Les Derniers Druides - Tableau de Bord Mystique</title>
 
-<style>
-body {
-    margin: 0;
-    font-family: Georgia, serif;
-    min-height: 100vh;
-    background-image: url("fond.jpg");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-}
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-/* Overlay sombre */
-body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    z-index: 0;
-}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Reenie+Beanie&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- STYLES GENERAUX AVEC LE FOND REGENERE --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-/* MENU */
-.menu {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 2;
-}
+        body {
+            /* Intégration de l'image de parchemin épurée en fond global fixe */
+            background-image: url('https://lh3.googleusercontent.com/d/1XgG9VzU566_fby6qWkX1M1jYnEwWp3wW');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            font-family: 'Playfair Display', serif;
+            color: #3d3428;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
 
-.menu button {
-    background: #6B0F1A;
-    border: none;
-    padding: 8px 15px;
-    color: white;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-left: 5px;
-}
+        /* Superposition subtile pour l'ambiance et le contraste du texte */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, rgba(139, 120, 95, 0.25) 100%);
+            z-index: 0;
+            pointer-events: none;
+        }
 
-.menu button:hover {
-    background: #8e0e1f;
-}
+        /* --- CONTENEUR GENERAL ORDINATEUR --- */
+        .desktop-wrapper {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 50px 20px;
+            position: relative;
+            z-index: 1;
+        }
 
-/* PAGES */
-.page {
-    display: none;
-    position: relative;
-    z-index: 1;
-    padding: 100px 20px 40px;
-    min-height: 100vh;
-}
+        /* --- ENTÊTE & TITRE --- */
+        header {
+            text-align: center;
+            margin-bottom: 45px;
+        }
 
-.active {
-    display: block;
-}
+        .main-logo {
+            font-family: 'Cinzel', serif;
+            font-size: 46px;
+            letter-spacing: 5px;
+            color: #2b241a;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 5px;
+        }
 
-/* CONTAINER */
-.container {
-    max-width: 500px;
-    margin: auto;
-    background: rgba(40,40,40,0.92);
-    padding: 30px;
-    border-radius: 15px;
-    text-align: center;
-    color: #e0e0e0;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.6);
-}
+        .main-subtitle {
+            font-family: 'Reenie Beanie', cursive;
+            font-size: 50px;
+            color: #785e43;
+            letter-spacing: 1px;
+        }
 
-/* TITRES */
-h1 {
-    color: #6B0F1A;
-    text-shadow: 0 0 6px rgba(255,255,255,0.2);
-}
+        /* --- NAVIGATION --- */
+        .menu {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin: 35px auto 0;
+            padding: 12px 0;
+            border-top: 1px solid rgba(120, 94, 67, 0.25);
+            border-bottom: 1px solid rgba(120, 94, 67, 0.25);
+            max-width: 650px;
+        }
 
-.book-title {
-    font-style: italic;
-    color: #ccc;
-    margin-bottom: 20px;
-}
+        .menu button {
+            background: transparent;
+            border: none;
+            font-family: 'Playfair Display', serif;
+            font-size: 19px;
+            font-style: italic;
+            color: #5c4f3c;
+            cursor: pointer;
+            padding: 5px 10px;
+            position: relative;
+            transition: color 0.3s, transform 0.2s;
+        }
 
-/* PROGRESSION */
-.progress-bar {
-    width: 100%;
-    height: 25px;
-    background: #555;
-    border-radius: 50px;
-    overflow: hidden;
-    margin: 20px 0;
-}
+        .menu button:hover, .menu button.active-nav {
+            color: #912222;
+            transform: translateY(-1px);
+        }
 
-.progress {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #6B0F1A, #9E1B32);
-    transition: 0.6s;
-}
+        .menu button.active-nav::after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            left: 10%;
+            width: 80%;
+            height: 1.5px;
+            background-color: #912222;
+        }
 
-input {
-    width: 80px;
-    padding: 8px;
-    border-radius: 6px;
-    border: none;
-    text-align: center;
-    margin: 5px;
-}
+        /* --- PAGES ET PANNEAUX DE TYPE GRIMOIRE --- */
+        .page {
+            display: none;
+            animation: fadeIn 0.5s ease-out forwards;
+        }
 
-button {
-    padding: 8px 15px;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-}
+        .page.active {
+            display: block;
+        }
 
-/* UNIVERS */
-.feed {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 10px;
-    margin-top: 20px;
-}
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-.image-card {
-    position: relative;
-}
+        /* Panneau central utilisant une version adoucie du fond parchemin */
+        .parchment-panel {
+            background-image: linear-gradient(rgba(253, 251, 245, 0.88), rgba(253, 251, 245, 0.88)), url('https://lh3.googleusercontent.com/d/1XgG9VzU566_fby6qWkX1M1jYnEwWp3wW');
+            background-size: cover;
+            border: 1px solid #d4c7b0;
+            box-shadow: 
+                0 20px 45px rgba(100, 80, 60, 0.15),
+                inset 0 0 50px rgba(184, 164, 131, 0.2);
+            border-radius: 6px;
+            padding: 50px;
+            margin: 0 auto;
+        }
 
-.feed img {
-    width: 100%;
-    border-radius: 10px;
-    cursor: pointer;
-}
+        .panel-center {
+            max-width: 750px;
+        }
 
-.delete-btn {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background: rgba(0,0,0,0.7);
-    border: none;
-    color: white;
-    border-radius: 50%;
-    width: 25px;
-    height: 25px;
-    cursor: pointer;
-}
+        .section-title {
+            font-family: 'Cinzel', serif;
+            font-size: 26px;
+            text-align: center;
+            color: #3d3428;
+            margin-bottom: 40px;
+            letter-spacing: 2px;
+        }
 
-/* LIGHTBOX */
-#lightbox {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.9);
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-}
+        /* --- INTERFACE DE SUIVI (HOME) --- */
+        .progress-circle-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 35px;
+        }
 
-#lightbox img {
-    max-width: 90%;
-    max-height: 90%;
-    border-radius: 10px;
-}
+        #percentage {
+            font-family: 'Cinzel', serif;
+            font-size: 80px;
+            font-weight: 700;
+            color: #2b241a;
+            line-height: 1;
+            margin-bottom: 20px;
+        }
 
-#closeLightbox {
-    position: absolute;
-    top: 20px;
-    right: 30px;
-    font-size: 40px;
-    color: white;
-    cursor: pointer;
-}
+        .progress-bar-wrapper {
+            width: 85%;
+            max-width: 550px;
+        }
 
-/* RESPONSIVE */
-@media (max-width: 480px) {
-    .container {
-        padding: 20px;
-    }
-}
-</style>
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e6dfcd;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
+            border: 1px solid rgba(184, 164, 131, 0.3);
+        }
+
+        .progress {
+            height: 100%;
+            width: 0%;
+            background: #912222; /* Rouge cire à cacheter antique */
+            box-shadow: 0 0 8px rgba(145, 34, 34, 0.35);
+            transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stats-display-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin: 40px 0;
+            border-top: 1px double rgba(140, 115, 85, 0.3);
+            border-bottom: 1px double rgba(140, 115, 85, 0.3);
+            padding: 30px 0;
+            text-align: center;
+        }
+
+        .stat-meta-box label {
+            display: block;
+            font-family: 'Cinzel', serif;
+            font-size: 13px;
+            color: #785e43;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            letter-spacing: 1.5px;
+        }
+
+        .stat-meta-box span {
+            font-size: 26px;
+            font-style: italic;
+            color: #2b241a;
+        }
+
+        /* Alignement des éléments d'action */
+        .controls-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        input[type="number"] {
+            width: 105px;
+            padding: 12px;
+            border: 1px solid #c7bca5;
+            background: #fff;
+            color: #3d3428;
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            text-align: center;
+            box-shadow: inset 0 1px 4px rgba(0,0,0,0.06);
+            border-radius: 4px;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #912222;
+        }
+
+        button.btn-antique {
+            background: #3d3428;
+            color: #fdfbf7;
+            border: none;
+            padding: 15px 35px;
+            font-family: 'Cinzel', serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            border-radius: 4px;
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+
+        button.btn-antique:hover {
+            background-color: #912222;
+            box-shadow: 0 5px 15px rgba(145, 34, 34, 0.25);
+        }
+
+        /* --- ZONE ENVOI D'IMAGES (UNIVERS) --- */
+        .upload-parchment-zone {
+            border: 1px dashed #bba98d;
+            background: rgba(255, 255, 255, 0.5);
+            padding: 45px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            transition: background 0.3s, border-color 0.3s;
+            margin-bottom: 45px;
+        }
+
+        .upload-parchment-zone:hover {
+            background: rgba(245, 238, 222, 0.6);
+            border-color: #912222;
+        }
+
+        .upload-parchment-zone p {
+            font-style: italic;
+            color: #4a3e31;
+            font-size: 17px;
+        }
+
+        #imageUpload { display: none; }
+
+        .status-txt {
+            font-size: 13px;
+            font-family: 'Cinzel', serif;
+            color: #912222;
+            margin-top: 15px;
+            font-weight: 600;
+        }
+
+        /* --- COMPOSANTS DE LA GALERIE --- */
+        .feed {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 30px;
+            margin-top: 10px;
+        }
+
+        .image-card {
+            position: relative;
+            aspect-ratio: 4 / 3;
+            overflow: hidden;
+            background: #fff;
+            padding: 10px 10px 35px 10px;
+            box-shadow: 0 10px 25px rgba(120, 100, 80, 0.15);
+            border: 1px solid #e8dfcc;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .image-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Rotations aléatoires naturelles */
+        .image-card:nth-child(odd) { transform: rotate(-1.5deg); }
+        .image-card:nth-child(even) { transform: rotate(1.8deg); }
+        .image-card:nth-child(3n) { transform: rotate(-0.8deg); }
+
+        .image-card:hover {
+            transform: scale(1.05) rotate(0deg);
+            z-index: 10;
+            box-shadow: 0 15px 30px rgba(120, 100, 80, 0.25);
+        }
+
+        .delete-btn {
+            position: absolute;
+            bottom: 6px;
+            right: 12px;
+            background: transparent;
+            border: none;
+            color: #bfa583;
+            cursor: pointer;
+            font-size: 22px;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .delete-btn:hover {
+            color: #912222;
+        }
+
+        /* --- LIGHTBOX (VISIONNEUSE) --- */
+        #lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(36, 30, 22, 0.94);
+            backdrop-filter: blur(4px);
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        #lightbox img {
+            max-width: 82%;
+            max-height: 82%;
+            border: 10px solid #fff;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+        }
+
+        #closeLightbox {
+            position: absolute;
+            top: 35px;
+            right: 45px;
+            font-size: 55px;
+            color: #f7f2e4;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+            transition: color 0.2s;
+        }
+        #closeLightbox:hover { color: #fff; }
+
+        /* --- PIED DE PAGE --- */
+        footer {
+            text-align: center;
+            margin-top: 70px;
+            padding-top: 25px;
+            border-top: 1px dashed rgba(140, 115, 85, 0.3);
+            font-size: 13px;
+            color: #785e43;
+            font-style: italic;
+        }
+    </style>
 </head>
-
 <body>
 
-<div class="menu">
-    <button onclick="showPage('home')">Accueil</button>
-    <button onclick="showPage('univers')">Univers</button>
-</div>
+<div class="desktop-wrapper">
 
-<!-- PAGE ACCUEIL -->
-<div id="home" class="page active">
-    <div class="container">
-        <h1>Suivi d'écriture</h1>
-        <div class="book-title">"Les Derniers Druides"</div>
+    <header>
+        <div class="main-subtitle">Les Derniers Druides</div>
 
-        <p>Objectif : 53 chapitres</p>
-
-        <div class="progress-bar">
-            <div class="progress" id="progress"></div>
+        <div class="menu">
+            <button id="nav-home" class="active-nav" onclick="showPage('home')">Suivi d'Écriture</button>
+            <button id="nav-univers" onclick="showPage('univers')">Univers Visuel</button>
         </div>
+    </header>
 
-        <div id="percentage">0%</div>
+    <div id="home" class="page active">
+        <div class="parchment-panel panel-center">
+            <div class="section-title">Manuscrit Principal</div>
+            
+            <div class="progress-circle-container">
+                <div id="percentage">0%</div>
+                <div class="progress-bar-wrapper">
+                    <div class="progress-bar">
+                        <div class="progress" id="progress"></div>
+                    </div>
+                </div>
+            </div>
 
-        <input type="number" id="chaptersInput" min="0" max="53" value="0">
-        <button style="background:#6B0F1A;color:white;" onclick="updateProgress()">Mettre à jour</button>
+            <div class="stats-display-row">
+                <div class="stat-meta-box">
+                    <label>Chapitres Rédigés</label>
+                    <span id="chaptersText">0 / 54</span>
+                </div>
+                <div class="stat-meta-box">
+                    <label>Restant en Écriture</label>
+                    <span id="remainingText">54 chapitres</span>
+                </div>
+            </div>
 
-        <div id="chaptersText">0 / 53 chapitres écrits</div>
+            <div class="controls-row">
+                <input type="number" id="chaptersInput" min="0" max="54" value="0">
+                <button class="btn-antique" onclick="updateProgress()">Enregistrer l'avancée</button>
+            </div>
+        </div>
     </div>
+
+    <div id="univers" class="page">
+        <div class="parchment-panel">
+            <div class="section-title">Inspirations & Ambiances</div>
+            
+            <div class="upload-parchment-zone" onclick="document.getElementById('imageUpload').click()">
+                <p>✒️ Déposez ou cliquez ici pour relier une nouvelle illustration au grimoire</p>
+                <input type="file" id="imageUpload" accept="image/*">
+                <p class="status-txt" id="uploadStatus"></p>
+            </div>
+
+            <div class="feed" id="feed"></div>
+        </div>
+    </div>
+
+    <footer>
+        © 2026 Les Derniers Druides — Carnet d'écriture électronique. Tous droits réservés.
+    </footer>
+
 </div>
 
-<!-- PAGE UNIVERS -->
-<div id="univers" class="page">
-    <div class="container">
-        <h1>Univers</h1>
-        <input type="file" id="imageUpload" accept="image/*">
-        <div class="feed" id="feed"></div>
-    </div>
-</div>
-
-<!-- LIGHTBOX -->
 <div id="lightbox">
     <span id="closeLightbox">&times;</span>
-    <img id="lightboxImg">
+    <img id="lightboxImg" alt="Visualisation">
 </div>
 
 <script>
-const totalChapters = 53;
+// Configurations d'origine de votre base de données Firestore
+const firebaseConfig = {
+  apiKey: "AIzaSyBDWUnnFZ74zzIBl2HRPkNEE3d7wMuPIs0",
+  authDomain: "druides-ad06a.firebaseapp.com",
+  projectId: "druides-ad06a",
+  storageBucket: "druides-ad06a.firebasestorage.app",
+  messagingSenderId: "578471899935",
+  appId: "1:578471899935:web:3c029b642222f255a7762a",
+  measurementId: "G-SDTE577R9E"
+};
 
-/* Navigation */
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+const totalChapters = 54;
+
 function showPage(pageId) {
-    document.querySelectorAll(".page").forEach(page => {
-        page.classList.remove("active");
-    });
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+    document.querySelectorAll(".menu button").forEach(b => b.classList.remove("active-nav"));
     document.getElementById(pageId).classList.add("active");
+    document.getElementById("nav-" + pageId).classList.add("active-nav");
 }
 
-/* Progression */
+function renderStats(written) {
+    const percentage = Math.round((written / totalChapters) * 100);
+    document.getElementById("progress").style.width = percentage + "%";
+    document.getElementById("percentage").innerText = percentage + "%";
+    document.getElementById("chaptersText").innerText = written + " / " + totalChapters;
+    document.getElementById("remainingText").innerText = (totalChapters - written) + " chapitres";
+    document.getElementById("chaptersInput").value = written;
+}
+
 function updateProgress() {
-    let written = parseInt(document.getElementById("chaptersInput").value);
+    let written = parseInt(document.getElementById("chaptersInput").value) || 0;
     if (written < 0) written = 0;
     if (written > totalChapters) written = totalChapters;
 
-    const percentage = Math.round((written / totalChapters) * 100);
+    renderStats(written);
 
-    document.getElementById("progress").style.width = percentage + "%";
-    document.getElementById("percentage").innerText = percentage + "%";
-    document.getElementById("chaptersText").innerText =
-        written + " / " + totalChapters + " chapitres écrits";
-
-    localStorage.setItem("chaptersWritten", written);
+    db.collection("progression").doc("compteur").set({
+        chaptersWritten: written,
+        updatedAt: Date.now()
+    }).catch(err => console.error("Erreur Firestore :", err));
 }
 
-/* Charger progression */
 window.onload = function() {
-    let saved = localStorage.getItem("chaptersWritten");
-    if (saved) {
-        document.getElementById("chaptersInput").value = saved;
-        updateProgress();
-    }
+    db.collection("progression").doc("compteur").get().then(doc => {
+        if (doc.exists) { renderStats(doc.data().chaptersWritten); } 
+        else { renderStats(0); }
+    }).catch(() => renderStats(0));
+
     loadImages();
 };
 
-/* Upload images */
-document.getElementById("imageUpload").addEventListener("change", function(event) {
-    const file = event.target.files[0];
+/* Encodage local en Base64 */
+document.getElementById("imageUpload").addEventListener("change", function(e) {
+    const file = e.target.files[0];
     if (!file) return;
 
+    const status = document.getElementById("uploadStatus");
+    status.innerText = "Parchemin en cours d'analyse et d'insertion...";
+
     const reader = new FileReader();
-    reader.onload = function(e) {
-        let images = JSON.parse(localStorage.getItem("universImages")) || [];
-        images.push(e.target.result);
-        localStorage.setItem("universImages", JSON.stringify(images));
-        loadImages();
+    reader.onload = function(event) {
+        const base64String = event.target.result;
+
+        db.collection("images").add({
+            url: base64String, 
+            createdAt: Date.now()
+        }).then(() => {
+            status.innerText = "Illustration liée avec succès !";
+            setTimeout(() => status.innerText = "", 2000);
+            loadImages();
+        }).catch(err => {
+            console.error(err);
+            status.innerText = "Erreur de transmission. Vérifiez les accès Firestore.";
+        });
     };
     reader.readAsDataURL(file);
 });
 
-/* Charger images */
 function loadImages() {
     const feed = document.getElementById("feed");
-    feed.innerHTML = "";
-    let images = JSON.parse(localStorage.getItem("universImages")) || [];
+    feed.innerHTML = "<p style='grid-column:1/-1; text-align:center; font-style:italic; color:#785e43;'>Lecture du recueil d'images...</p>";
 
-    images.forEach((src, index) => {
-        const card = document.createElement("div");
-        card.classList.add("image-card");
+    db.collection("images").orderBy("createdAt", "desc").get().then((querySnapshot) => {
+        feed.innerHTML = "";
+        if (querySnapshot.empty) {
+            feed.innerHTML = "<p style='grid-column:1/-1; text-align:center; font-style:italic; color:#785e43;'>Le grimoire d'illustrations est vide.</p>";
+            return;
+        }
 
-        const img = document.createElement("img");
-        img.src = src;
-        img.onclick = function() {
-            document.getElementById("lightbox").style.display = "flex";
-            document.getElementById("lightboxImg").src = src;
-        };
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const docId = doc.id;
 
-        const delBtn = document.createElement("button");
-        delBtn.innerText = "×";
-        delBtn.classList.add("delete-btn");
-        delBtn.onclick = function(e) {
-            e.stopPropagation();
-            images.splice(index, 1);
-            localStorage.setItem("universImages", JSON.stringify(images));
-            loadImages();
-        };
+            const card = document.createElement("div");
+            card.classList.add("image-card");
 
-        card.appendChild(img);
-        card.appendChild(delBtn);
-        feed.appendChild(card);
+            const img = document.createElement("img");
+            img.src = data.url;
+            img.onclick = function() {
+                document.getElementById("lightbox").style.display = "flex";
+                document.getElementById("lightboxImg").src = data.url;
+            };
+
+            const delBtn = document.createElement("button");
+            delBtn.innerHTML = "&times;";
+            delBtn.classList.add("delete-btn");
+            delBtn.title = "Supprimer cette image";
+            delBtn.onclick = function(e) {
+                e.stopPropagation();
+                if (confirm("Voulez-vous retirer cette illustration de votre univers ?")) {
+                    db.collection("images").doc(docId).delete().then(() => loadImages());
+                }
+            };
+
+            card.appendChild(img);
+            card.appendChild(delBtn);
+            feed.appendChild(card);
+        });
+    }).catch(err => {
+        feed.innerHTML = "<p style='grid-column:1/-1; text-align:center; color:#912222;'>Erreur lors de l'accès aux illustrations Firestore.</p>";
     });
 }
 
-/* Fermer lightbox */
 document.getElementById("closeLightbox").onclick = function() {
     document.getElementById("lightbox").style.display = "none";
 };
-
 document.getElementById("lightbox").onclick = function(e) {
-    if (e.target === this) {
-        this.style.display = "none";
-    }
+    if (e.target === this) this.style.display = "none";
 };
 </script>
-
 </body>
 </html>
