@@ -428,16 +428,16 @@
             <div class="stats-display-row">
                 <div class="stat-meta-box">
                     <label>Chapitres Rédigés</label>
-                    <span id="chaptersText">0 / 54</span>
+                    <span id="chaptersText">0 / 55</span>
                 </div>
                 <div class="stat-meta-box">
                     <label>Restant en Écriture</label>
-                    <span id="remainingText">54 chapitres</span>
+                    <span id="remainingText">55 chapitres</span>
                 </div>
             </div>
 
             <div class="controls-row">
-                <input type="number" id="chaptersInput" min="0" max="54" value="0">
+                <input type="number" id="chaptersInput" min="0" max="55" value="0">
                 <button class="btn-antique" onclick="updateProgress()">Enregistrer l'avancée</button>
             </div>
         </div>
@@ -483,7 +483,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-const totalChapters = 54;
+const totalChapters = 55;
 
 function showPage(pageId) {
     document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
